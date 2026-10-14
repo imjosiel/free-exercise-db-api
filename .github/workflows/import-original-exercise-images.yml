@@ -1,6 +1,10 @@
 name: Import original exercise images
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-original-exercise-images.yml'
   workflow_dispatch:
     inputs:
       source_ref:
