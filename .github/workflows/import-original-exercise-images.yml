@@ -1,0 +1,43 @@
+name: Import original exercise images
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Branch or tag of yuhonas/free-exercise-db"
+        required: false
+        default: "main"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-original-exercise-images
+  cancel-in-progress: false
+
+jobs:
+  import-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: git --version
+
+      - name: Import image folders from upstream
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: bash scripts/import-original-exercise-images.sh
+
+      - name: Commit imported images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/original-exercise-images
+          if git diff --cached --quiet; then
+            echo "No image changes to commit."
+            exit 0
+          fi
+          git commit -m "Import original exercise image assets"
+          git push
