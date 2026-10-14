@@ -1,0 +1,38 @@
+name: Download exercise videos and thumbnails
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/download-exercise-videos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  download-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Download videos and thumbnails
+        run: bash scripts/download-all-videos.sh
+
+      - name: Package media as downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exercise-videos-and-thumbnails
+          path: |
+            videos/
+            thumbnails/
+          if-no-files-found: error
+          retention-days: 7
